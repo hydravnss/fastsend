@@ -1,0 +1,386 @@
+/* =========================================================
+   SILLYTAVERN — FASTSEND
+   Send latency / touch optimization
+   ========================================================= */
+
+
+/* =========================================================
+   SEND BUTTON OPTIMIZATION
+   ========================================================= */
+
+#send_but {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+/* =========================================================
+   FAST VISUAL FEEDBACK
+   ========================================================= */
+
+#send_but.fastsend-active {
+    transform: scale(0.96);
+    transition:
+        transform 0.06s ease-out,
+        opacity 0.06s ease-out;
+
+    opacity: 0.82;
+}
+
+
+/* =========================================================
+   GPU COMPOSITING
+   ========================================================= */
+
+#send_but {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+
+/* =========================================================
+   FASTSEND SETTINGS BUTTON
+   ========================================================= */
+
+#fastsend-button {
+    position: fixed;
+
+    right: 12px;
+
+    bottom:
+        calc(
+            12px +
+            env(safe-area-inset-bottom)
+        );
+
+    z-index: 999999;
+
+    padding: 8px 12px;
+
+    border: 1px solid
+        rgba(255, 255, 255, 0.12);
+
+    border-radius: 999px;
+
+    background:
+        rgba(25, 25, 28, 0.92);
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    touch-action: manipulation;
+
+    -webkit-tap-highlight-color: transparent;
+
+    backdrop-filter:
+        blur(12px);
+
+    -webkit-backdrop-filter:
+        blur(12px);
+
+    box-shadow:
+        0 5px 20px
+        rgba(0, 0, 0, 0.35);
+
+    transition:
+        transform 0.1s ease,
+        opacity 0.1s ease;
+}
+
+
+/* =========================================================
+   BUTTON PRESS
+   ========================================================= */
+
+#fastsend-button:active {
+    transform: scale(0.94);
+}
+
+
+/* =========================================================
+   SETTINGS PANEL
+   ========================================================= */
+
+.fastsend-settings {
+
+    position: fixed;
+
+    right: 12px;
+
+    bottom:
+        calc(
+            58px +
+            env(safe-area-inset-bottom)
+        );
+
+    z-index: 1000000;
+
+    width:
+        min(
+            310px,
+            calc(100vw - 24px)
+        );
+
+    padding: 15px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.10);
+
+    border-radius: 17px;
+
+    background:
+        rgba(24, 24, 27, 0.96);
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    line-height: 1.35;
+
+    box-shadow:
+        0 15px 50px
+        rgba(0, 0, 0, 0.5);
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+}
+
+
+/* =========================================================
+   HIDDEN PANEL
+   ========================================================= */
+
+.fastsend-settings[hidden] {
+    display: none !important;
+}
+
+
+/* =========================================================
+   PANEL TITLE
+   ========================================================= */
+
+.fastsend-title {
+
+    margin-bottom: 12px;
+
+    font-size: 17px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   SETTINGS ROWS
+   ========================================================= */
+
+.fastsend-settings label {
+
+    display: block;
+
+    padding: 7px 0;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   CHECKBOXES
+   ========================================================= */
+
+.fastsend-settings input[type="checkbox"] {
+
+    margin-right: 7px;
+
+    vertical-align: middle;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.fastsend-description {
+
+    margin-top: 12px;
+
+    padding-top: 10px;
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
+    color:
+        rgba(255, 255, 255, 0.62);
+
+    font-size: 11px;
+
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   LATENCY MONITOR
+   ========================================================= */
+
+#fastsend-latency {
+
+    position: fixed;
+
+    top:
+        calc(
+            10px +
+            env(safe-area-inset-top)
+        );
+
+    right: 10px;
+
+    z-index: 1000001;
+
+    padding: 5px 8px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.10);
+
+    border-radius: 7px;
+
+    background:
+        rgba(0, 0, 0, 0.78);
+
+    color: #ffffff;
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    line-height: 1;
+
+    pointer-events: none;
+
+    user-select: none;
+
+    -webkit-user-select: none;
+
+    opacity: 0;
+
+    transform:
+        translateY(-5px);
+
+    transition:
+        opacity 0.12s ease,
+        transform 0.12s ease;
+
+    backdrop-filter:
+        blur(8px);
+
+    -webkit-backdrop-filter:
+        blur(8px);
+}
+
+
+/* =========================================================
+   LATENCY VISIBLE
+   ========================================================= */
+
+#fastsend-latency.fastsend-latency-visible {
+
+    opacity: 1;
+
+    transform:
+        translateY(0);
+}
+
+
+/* =========================================================
+   MOBILE / IPHONE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    #fastsend-button {
+
+        right: 9px;
+
+        bottom:
+            calc(
+                9px +
+                env(safe-area-inset-bottom)
+            );
+
+        padding:
+            9px 11px;
+    }
+
+
+    .fastsend-settings {
+
+        right: 9px;
+
+        bottom:
+            calc(
+                58px +
+                env(safe-area-inset-bottom)
+            );
+
+        width:
+            calc(100vw - 18px);
+
+        border-radius: 18px;
+    }
+
+
+    #send_but {
+
+        -webkit-tap-highlight-color:
+            transparent;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    #send_but.fastsend-active {
+
+        transition: none;
+    }
+
+
+    #fastsend-button {
+
+        transition: none;
+    }
+
+
+    #fastsend-latency {
+
+        transition: none;
+    }
+}
