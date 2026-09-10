@@ -8,7 +8,7 @@
     'use strict';
 
     const EXTENSION_NAME = 'fastsend';
-    const VERSION = '1.0.1';
+    const VERSION = '1.0.2';
 
     const STORAGE_KEY = 'fastsend_settings';
 
@@ -36,34 +36,46 @@
 
     function loadSettings() {
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
+            const saved =
+                localStorage.getItem(
+                    STORAGE_KEY
+                );
 
             if (!saved) {
-                return { ...DEFAULT_SETTINGS };
+                return {
+                    ...DEFAULT_SETTINGS
+                };
             }
 
             return {
                 ...DEFAULT_SETTINGS,
                 ...JSON.parse(saved)
             };
+
         } catch (error) {
+
             console.warn(
                 `[${EXTENSION_NAME}] Settings error:`,
                 error
             );
 
-            return { ...DEFAULT_SETTINGS };
+            return {
+                ...DEFAULT_SETTINGS
+            };
         }
     }
 
 
     function saveSettings() {
         try {
+
             localStorage.setItem(
                 STORAGE_KEY,
                 JSON.stringify(settings)
             );
+
         } catch (error) {
+
             console.warn(
                 `[${EXTENSION_NAME}] Could not save settings:`,
                 error
@@ -77,8 +89,16 @@
        ===================================================== */
 
     function findSendElements() {
-        const button = document.querySelector('#send_but');
-        const input = document.querySelector('#send_textarea');
+
+        const button =
+            document.querySelector(
+                '#send_but'
+            );
+
+        const input =
+            document.querySelector(
+                '#send_textarea'
+            );
 
         return {
             button,
@@ -97,26 +117,34 @@
             return;
         }
 
+
         /*
          * Avoid mobile browser gesture delays.
          */
 
         if (settings.touchOptimization) {
-            button.style.touchAction = 'manipulation';
-            button.style.webkitTapHighlightColor = 'transparent';
+
+            button.style.touchAction =
+                'manipulation';
+
+            button.style.webkitTapHighlightColor =
+                'transparent';
         }
 
 
         /*
-         * Mark the element so we don't attach
-         * duplicate listeners.
+         * Avoid duplicate listeners.
          */
 
-        if (button.dataset.fastsendReady === 'true') {
+        if (
+            button.dataset.fastsendReady ===
+            'true'
+        ) {
             return;
         }
 
-        button.dataset.fastsendReady = 'true';
+        button.dataset.fastsendReady =
+            'true';
 
 
         /* -------------------------------------------------
@@ -131,18 +159,19 @@
                     return;
                 }
 
-                latencyStart = performance.now();
+
+                latencyStart =
+                    performance.now();
 
 
                 /*
                  * Immediate visual response.
-                 *
-                 * We deliberately DO NOT preventDefault().
-                 * SillyTavern's native send handler must
-                 * continue normally.
                  */
 
-                if (settings.instantFeedback) {
+                if (
+                    settings.instantFeedback
+                ) {
+
                     button.classList.add(
                         'fastsend-active'
                     );
@@ -150,16 +179,19 @@
 
 
                 /*
-                 * Remove visual state on next frame.
+                 * Remove visual state
+                 * on next frame.
                  */
 
-                requestAnimationFrame(() => {
+                requestAnimationFrame(
+                    () => {
 
-                    button.classList.remove(
-                        'fastsend-active'
-                    );
+                        button.classList.remove(
+                            'fastsend-active'
+                        );
 
-                });
+                    }
+                );
 
             },
             {
@@ -179,8 +211,13 @@
             return;
         }
 
-        if (settings.touchOptimization) {
-            input.style.touchAction = 'manipulation';
+
+        if (
+            settings.touchOptimization
+        ) {
+
+            input.style.touchAction =
+                'manipulation';
         }
     }
 
@@ -196,90 +233,103 @@
         }
 
 
-        observer = new MutationObserver(
-            (mutations) => {
+        observer =
+            new MutationObserver(
+                (mutations) => {
 
-                if (!latencyStart) {
-                    return;
-                }
-
-
-                for (const mutation of mutations) {
-
-                    if (!mutation.addedNodes.length) {
-                        continue;
+                    if (!latencyStart) {
+                        return;
                     }
 
 
                     for (
-                        const node
-                        of mutation.addedNodes
+                        const mutation
+                        of mutations
                     ) {
 
                         if (
-                            node.nodeType !==
-                            Node.ELEMENT_NODE
+                            !mutation.addedNodes.length
                         ) {
                             continue;
                         }
 
 
-                        let message = null;
-
-
-                        if (
-                            node.matches &&
-                            node.matches('.mes')
+                        for (
+                            const node
+                            of mutation.addedNodes
                         ) {
-                            message = node;
-                        }
+
+                            if (
+                                node.nodeType !==
+                                Node.ELEMENT_NODE
+                            ) {
+                                continue;
+                            }
 
 
-                        if (
-                            !message &&
-                            node.querySelector
-                        ) {
-                            message =
-                                node.querySelector(
-                                    '.mes'
+                            let message =
+                                null;
+
+
+                            if (
+                                node.matches &&
+                                node.matches('.mes')
+                            ) {
+
+                                message =
+                                    node;
+                            }
+
+
+                            if (
+                                !message &&
+                                node.querySelector
+                            ) {
+
+                                message =
+                                    node.querySelector(
+                                        '.mes'
+                                    );
+                            }
+
+
+                            if (!message) {
+                                continue;
+                            }
+
+
+                            const elapsed =
+                                performance.now() -
+                                latencyStart;
+
+
+                            latencyStart =
+                                0;
+
+
+                            if (
+                                settings.latencyMonitor
+                            ) {
+
+                                showLatency(
+                                    Math.round(
+                                        elapsed
+                                    )
                                 );
-                        }
+                            }
 
 
-                        if (!message) {
-                            continue;
-                        }
-
-
-                        const elapsed =
-                            performance.now() -
-                            latencyStart;
-
-
-                        latencyStart = 0;
-
-
-                        if (
-                            settings.latencyMonitor
-                        ) {
-
-                            showLatency(
-                                Math.round(elapsed)
+                            console.debug(
+                                `[${EXTENSION_NAME}]`,
+                                `Send → message: ${Math.round(elapsed)} ms`
                             );
+
+
+                            return;
                         }
-
-
-                        console.debug(
-                            `[${EXTENSION_NAME}]`,
-                            `Send → message: ${Math.round(elapsed)} ms`
-                        );
-
-
-                        return;
                     }
                 }
-            }
-        );
+            );
 
 
         observer.observe(
@@ -363,176 +413,193 @@
         }
 
 
-        const panel =
+        const settingsContainer =
+            document.getElementById(
+                'extensions_settings2'
+            );
+
+
+        if (!settingsContainer) {
+
+            console.warn(
+                `[${EXTENSION_NAME}] #extensions_settings2 not found.`
+            );
+
+            return;
+        }
+
+
+        const wrapper =
             document.createElement(
                 'div'
             );
 
 
-        panel.id =
+        wrapper.id =
             'fastsend-settings';
 
-        panel.className =
-            'fastsend-settings';
 
-        panel.hidden = true;
+        wrapper.className =
+            'fastsend-extension-wrapper';
 
 
-        panel.innerHTML = `
+        wrapper.innerHTML = `
 
-            <div class="fastsend-title">
-                ⚡ fastsend
-            </div>
+            <div class="inline-drawer">
 
-            <label>
-                <input
-                    type="checkbox"
-                    data-fastsend-setting="enabled"
+                <div
+                    class="inline-drawer-toggle
+                           inline-drawer-header"
                 >
-                Enable fastsend
-            </label>
 
-            <label>
-                <input
-                    type="checkbox"
-                    data-fastsend-setting="instantFeedback"
+                    <b>
+                        ⚡ fastsend
+                    </b>
+
+                    <div
+                        class="inline-drawer-icon
+                               fa-solid
+                               fa-circle-chevron-down
+                               down"
+                    ></div>
+
+                </div>
+
+
+                <div
+                    class="inline-drawer-content"
                 >
-                Instant button feedback
-            </label>
 
-            <label>
-                <input
-                    type="checkbox"
-                    data-fastsend-setting="touchOptimization"
-                >
-                Touch optimization
-            </label>
+                    <div class="fastsend-panel">
 
-            <label>
-                <input
-                    type="checkbox"
-                    data-fastsend-setting="latencyMonitor"
-                >
-                Show latency monitor
-            </label>
+                        <div class="fastsend-title">
+                            ⚡ fastsend
+                        </div>
 
-            <div class="fastsend-description">
-                Optimizes the client-side send interaction
-                without replacing SillyTavern's native
-                message generation system.
+
+                        <label class="fastsend-setting">
+
+                            <input
+                                type="checkbox"
+                                data-fastsend-setting="enabled"
+                            >
+
+                            <span>
+                                Enable fastsend
+                            </span>
+
+                        </label>
+
+
+                        <label class="fastsend-setting">
+
+                            <input
+                                type="checkbox"
+                                data-fastsend-setting="instantFeedback"
+                            >
+
+                            <span>
+                                Instant button feedback
+                            </span>
+
+                        </label>
+
+
+                        <label class="fastsend-setting">
+
+                            <input
+                                type="checkbox"
+                                data-fastsend-setting="touchOptimization"
+                            >
+
+                            <span>
+                                Touch optimization
+                            </span>
+
+                        </label>
+
+
+                        <label class="fastsend-setting">
+
+                            <input
+                                type="checkbox"
+                                data-fastsend-setting="latencyMonitor"
+                            >
+
+                            <span>
+                                Show latency monitor
+                            </span>
+
+                        </label>
+
+
+                        <div class="fastsend-description">
+
+                            Optimizes the client-side
+                            send interaction without
+                            replacing SillyTavern's native
+                            message generation system.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
         `;
 
 
-        document.body.appendChild(
-            panel
+        settingsContainer.appendChild(
+            wrapper
         );
 
 
         const inputs =
-            panel.querySelectorAll(
+            wrapper.querySelectorAll(
                 '[data-fastsend-setting]'
             );
 
 
-        inputs.forEach((input) => {
+        inputs.forEach(
+            (input) => {
 
-            const key =
-                input.dataset.fastsendSetting;
-
-
-            input.checked =
-                Boolean(settings[key]);
+                const key =
+                    input.dataset.fastsendSetting;
 
 
-            input.addEventListener(
-                'change',
-                () => {
-
-                    settings[key] =
-                        input.checked;
-
-                    saveSettings();
-
-
-                    const elements =
-                        findSendElements();
-
-
-                    prepareSendButton(
-                        elements.button
+                input.checked =
+                    Boolean(
+                        settings[key]
                     );
 
 
-                    prepareTextarea(
-                        elements.input
-                    );
-                }
-            );
-        });
-    }
+                input.addEventListener(
+                    'change',
+                    () => {
+
+                        settings[key] =
+                            input.checked;
 
 
-    /* =====================================================
-       SETTINGS BUTTON
-       ===================================================== */
-
-    function createSettingsButton() {
-
-        if (
-            document.querySelector(
-                '#fastsend-button'
-            )
-        ) {
-            return;
-        }
+                        saveSettings();
 
 
-        const button =
-            document.createElement(
-                'button'
-            );
+                        const elements =
+                            findSendElements();
 
 
-        button.id =
-            'fastsend-button';
+                        prepareSendButton(
+                            elements.button
+                        );
 
 
-        button.type =
-            'button';
-
-
-        button.textContent =
-            '⚡ fastsend';
-
-
-        button.title =
-            'fastsend settings';
-
-
-        button.addEventListener(
-            'click',
-            () => {
-
-                const panel =
-                    document.querySelector(
-                        '#fastsend-settings'
-                    );
-
-
-                if (!panel) {
-                    return;
-                }
-
-
-                panel.hidden =
-                    !panel.hidden;
+                        prepareTextarea(
+                            elements.input
+                        );
+                    }
+                );
             }
-        );
-
-
-        document.body.appendChild(
-            button
         );
     }
 
@@ -543,51 +610,55 @@
 
     function setupDOMWatcher() {
 
-        const observer =
-            new MutationObserver(() => {
+        const domObserver =
+            new MutationObserver(
+                () => {
 
-                const elements =
-                    findSendElements();
-
-
-                /*
-                 * SillyTavern can rebuild the
-                 * send button dynamically.
-                 */
-
-                if (
-                    elements.button &&
-                    elements.button !== sendButton
-                ) {
-
-                    sendButton =
-                        elements.button;
+                    const elements =
+                        findSendElements();
 
 
-                    prepareSendButton(
+                    /*
+                     * SillyTavern can rebuild
+                     * the send button dynamically.
+                     */
+
+                    if (
+                        elements.button &&
+                        elements.button !==
                         sendButton
-                    );
-                }
+                    ) {
+
+                        sendButton =
+                            elements.button;
 
 
-                if (
-                    elements.input &&
-                    elements.input !== textarea
-                ) {
-
-                    textarea =
-                        elements.input;
+                        prepareSendButton(
+                            sendButton
+                        );
+                    }
 
 
-                    prepareTextarea(
+                    if (
+                        elements.input &&
+                        elements.input !==
                         textarea
-                    );
+                    ) {
+
+                        textarea =
+                            elements.input;
+
+
+                        prepareTextarea(
+                            textarea
+                        );
+                    }
+
                 }
+            );
 
-            });
 
-
-        observer.observe(
+        domObserver.observe(
             document.body,
             {
                 childList: true,
@@ -606,6 +677,7 @@
         if (initialized) {
             return;
         }
+
 
         initialized = true;
 
@@ -643,9 +715,6 @@
         createSettingsPanel();
 
 
-        createSettingsButton();
-
-
         setupDOMWatcher();
 
 
@@ -656,13 +725,8 @@
 
 
     /* =====================================================
-       THIRD-PARTY SILLYTAVERN INITIALIZATION
+       SILLYTAVERN INITIALIZATION
        ===================================================== */
-
-    /*
-     * Third-party extensions are initialized
-     * after the page is ready.
-     */
 
     if (
         document.readyState ===
