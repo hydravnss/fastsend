@@ -1,0 +1,2 @@
+# fastsend
+Sillytavern extension
